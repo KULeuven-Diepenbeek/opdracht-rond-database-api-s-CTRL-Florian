@@ -37,6 +37,7 @@ public class SpelerRepositoryJDBCimplTest extends SpelerRepositoryTest {
   }
 
   @Test
+  // TODO: Test is volgens VSC goedgekeurd, volgens TEST RESULTS niet.
   public void givenNewSpeler_whenAddSpelerToDb_assertThatSpelerIsInDb() {
     super.givenNewSpeler_whenAddSpelerToDb_assertThatSpelerIsInDb();
   }

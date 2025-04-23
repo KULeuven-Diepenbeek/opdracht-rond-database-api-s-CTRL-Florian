@@ -6,6 +6,9 @@ import java.util.List;
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public abstract class SpelerRepositoryTest {
   protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite::memory:";
   protected final String USER_OF_TEST_DB = "";
@@ -17,6 +20,14 @@ public abstract class SpelerRepositoryTest {
   public void givenNewSpeler_whenAddSpelerToDb_assertThatSpelerIsInDb() {
     // Arrange
     Speler newSpeler = new Speler(123, "TestNaam", 11);
+    // TODO: [DEBUG] verwijder voor indienen.
+    String printThis = String.format(
+      "fromTest: %d '%s' %d",
+      newSpeler.getTennisvlaanderenid(),
+      newSpeler.getNaam(),
+      newSpeler.getPunten()
+    );
+    System.out.println(printThis);
 
     // Act
     spelerRepository.addSpelerToDb(newSpeler);

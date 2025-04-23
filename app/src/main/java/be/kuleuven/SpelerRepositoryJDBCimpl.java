@@ -2,6 +2,7 @@ package be.kuleuven;
 
 import java.sql.Connection;
 import java.util.List;
+import java.util.ArrayList;
 import java.sql.SQLException;
 
 import java.lang.String;
@@ -11,13 +12,11 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
 
   // Constructor
   SpelerRepositoryJDBCimpl(Connection connection) {
-    // TODO: Is dit correct?
     this.connection = connection;
   }
 
   @Override
   public void addSpelerToDb(Speler speler) {
-    // TODO: Is dit correct?
     try {
       String sql = String.format(
         "INSERT INTO speler (tennisvlaanderenid, naam, punten) VALUES (%d, '%s', %d)",
@@ -30,45 +29,70 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       //connection.commit();
       s.close();
     } catch (SQLException e) {
-      throw new RuntimeException("Databasefout bij toevoegen speler", e);
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij toevoegen speler" + e.getMessage(), e);
     }
   }
 
   @Override
   public Speler getSpelerByTennisvlaanderenId(int tennisvlaanderenId) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
     // throw new UnsupportedOperationException("Unimplemented method 'getSpelerByTennisvlaanderenId'");
     try {
       String sql = "SELECT * FROM speler WHERE tennisvlaanderenid = " + tennisvlaanderenId;
       var s = connection.createStatement();
-      var result = s.executeQuery(sql);
+      var queryResult = s.executeQuery(sql);
 
-      if (result.next()) {
-        // TODO: [DEBUG] verwijder voor indienen.
+      if (queryResult.next()) {
+        // [DEBUG]: verwijder voor indienen.
         String printThis = String.format(
           "fromDB: %d '%s' %d",
-          result.getInt("tennisvlaanderenid"),
-          result.getString("naam"),
-          result.getInt("punten")
+          queryResult.getInt("tennisvlaanderenid"),
+          queryResult.getString("naam"),
+          queryResult.getInt("punten")
         );
         System.out.println(printThis);
         return new Speler(
-          result.getInt("tennisvlaanderenid"),
-          result.getString("naam"),
-          result.getInt("punten")
+          queryResult.getInt("tennisvlaanderenid"),
+          queryResult.getString("naam"),
+          queryResult.getInt("punten")
         );
       } else {
-        return null;
+        // [DEBUG]: verwijder voor indienen.
+        System.err.println("[DEBUG] Invalid Speler met identification: " + tennisvlaanderenId);
+        throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenId);
       }
     } catch (SQLException e) {
-      throw new RuntimeException("Databasefout bij ophalen speler", e);
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij ophalen speler" + e.getMessage(), e);
     }
   }
 
   @Override
   public List<Speler> getAllSpelers() {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    // throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
+    try{
+    ArrayList<Speler> result = new ArrayList<>();
+    String sql = "SELECT tennisvlaanderenid, naam, punten FROM speler";
+    var s = connection.createStatement();
+    var queryResult = s.executeQuery(sql);
+
+    while (queryResult.next()){
+      int tennisvlaanderenId = queryResult.getInt("tennisvlaanderenid");
+      String naam = queryResult.getString("naam");
+      int punten = queryResult.getInt("punten");
+
+      result.add(new Speler(tennisvlaanderenId, naam, punten));
+    }
+
+    return result;
+
+    } catch (SQLException e) {
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij ophalen alle spelers" + e.getMessage(), e);
+    }
   }
 
   @Override

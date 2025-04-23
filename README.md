@@ -85,3 +85,9 @@ public void addSpelerToTornooi(int tornooiId, int tennisvlaanderenId);
 
 public void removeSpelerFromTornooi(int tornooiId, int tennisvlaanderenId);
 ```
+
+--> Check TODO's in App.java.
+
+--> Opmerkingen:
+  ! [Debug]-code is toegevoegd zodat er meldingen in de debug console worden gegeven.
+    Dit mag worden verwijderd in de finale versie.

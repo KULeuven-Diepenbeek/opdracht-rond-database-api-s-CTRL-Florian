@@ -10,3 +10,8 @@ public class App {
     }
 
 }
+
+/*
+TODO: Maak nieuwe branch waar stukken code met de [DEBUG]-tag aanwezig zijn.
+TODO: Stel in de les vragen over stukken code met de [QUESTION]-tag.
+*/

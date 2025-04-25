@@ -1,6 +1,7 @@
 package be.kuleuven;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.ArrayList;
 import java.sql.SQLException;
@@ -18,16 +19,15 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
   @Override
   public void addSpelerToDb(Speler speler) {
     try {
-      String sql = String.format(
-        "INSERT INTO speler (tennisvlaanderenid, naam, punten) VALUES (%d, '%s', %d)",
-        speler.getTennisvlaanderenid(),
-        speler.getNaam(),
-        speler.getPunten()
-      );
-      var s = connection.createStatement(); 
-      s.executeUpdate(sql);
-      //connection.commit();
-      s.close();
+      String sql = "INSERT INTO speler (tennisvlaanderenid, naam, punten) VALUES (?, ?, ?)";
+
+      PreparedStatement prepared = connection.prepareStatement(sql);
+      prepared.setInt(1, speler.getTennisvlaanderenid());
+      prepared.setString(2, speler.getNaam());
+      prepared.setInt(3, speler.getPunten());
+      prepared.executeUpdate();
+      prepared.close();
+
     } catch (SQLException e) {
       // [DEBUG]: verwijder voor indienen.
       System.err.println("[DEBUG] " + e.getMessage());
@@ -39,9 +39,11 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
   public Speler getSpelerByTennisvlaanderenId(int tennisvlaanderenId) {
     // throw new UnsupportedOperationException("Unimplemented method 'getSpelerByTennisvlaanderenId'");
     try {
-      String sql = "SELECT * FROM speler WHERE tennisvlaanderenid = " + tennisvlaanderenId;
-      var s = connection.createStatement();
-      var queryResult = s.executeQuery(sql);
+      String sql = "SELECT * FROM speler WHERE tennisvlaanderenid = ?";
+
+      PreparedStatement prepared = connection.prepareStatement(sql);
+      prepared.setInt(1, tennisvlaanderenId);
+      var queryResult = prepared.executeQuery();
 
       if (queryResult.next()) {
         // [DEBUG]: verwijder voor indienen.
@@ -52,6 +54,8 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
           queryResult.getInt("punten")
         );
         System.out.println(printThis);
+        // [QUESTION]: Waar moet close statement?
+        //prepared.close();
         return new Speler(
           queryResult.getInt("tennisvlaanderenid"),
           queryResult.getString("naam"),
@@ -74,17 +78,31 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
     // throw new UnsupportedOperationException("Unimplemented method 'getAllSpelers'");
     try{
     ArrayList<Speler> result = new ArrayList<>();
+
     String sql = "SELECT tennisvlaanderenid, naam, punten FROM speler";
-    var s = connection.createStatement();
-    var queryResult = s.executeQuery(sql);
+
+    PreparedStatement prepared = connection.prepareStatement(sql);
+    var queryResult = prepared.executeQuery();
 
     while (queryResult.next()){
       int tennisvlaanderenId = queryResult.getInt("tennisvlaanderenid");
       String naam = queryResult.getString("naam");
       int punten = queryResult.getInt("punten");
 
+      // [DEBUG]: verwijder voor indienen.
+      String printThis = String.format(
+        "fromDB: %d '%s' %d",
+        tennisvlaanderenId,
+        naam,
+        punten
+      );
+      System.out.println(printThis);
+
       result.add(new Speler(tennisvlaanderenId, naam, punten));
     }
+
+    // [QUESTION]: Waar moet close statement?
+    prepared.close();
 
     return result;
 
@@ -97,8 +115,35 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
 
   @Override
   public void updateSpelerInDb(Speler speler) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'updateSpelerInDb'");
+    //throw new UnsupportedOperationException("Unimplemented method 'updateSpelerInDb'");
+    try {
+      String sqlCheck = "SELECT * FROM speler WHERE tennisvlaanderenid = ?";
+
+      PreparedStatement preparedCheck = connection.prepareStatement(sqlCheck);
+      preparedCheck.setInt(1, speler.getTennisvlaanderenid());
+      var queryResult = preparedCheck.executeQuery();
+
+      if(queryResult.next()){
+        String sqlUpdate = "UPDATE speler SET naam = ?, punten = ? WHERE tennisvlaanderenid = ?";
+
+        PreparedStatement preparedUpdate = connection.prepareStatement(sqlUpdate);
+        preparedUpdate.setString(1, speler.getNaam());
+        preparedUpdate.setInt(2, speler.getPunten());
+        preparedUpdate.setInt(3, speler.getTennisvlaanderenid());
+        preparedUpdate.executeUpdate();
+        preparedUpdate.close();
+
+      } else {
+        // [DEBUG]: verwijder voor indienen.
+        System.err.println("[DEBUG] Invalid Speler met identification: " + speler.getTennisvlaanderenid());
+        throw new RuntimeException("Invalid Speler met identification: " + speler.getTennisvlaanderenid());
+      }
+
+    } catch (SQLException e) {
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij updaten speler" + e.getMessage(), e);
+    }
   }
 
   @Override

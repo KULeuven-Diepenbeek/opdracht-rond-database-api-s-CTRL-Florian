@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public abstract class SpelerRepositoryTest {
+  // protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite:file:test.db";
   protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite::memory:";
   protected final String USER_OF_TEST_DB = "";
   protected final String PWD_OF_TEST_DB = "";

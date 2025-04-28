@@ -148,25 +148,143 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
 
   @Override
   public void deleteSpelerInDb(int tennisvlaanderenid) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'deleteSpelerInDb'");
+    // throw new UnsupportedOperationException("Unimplemented method 'deleteSpelerInDb'");
+    try {
+      String sqlCheck = "SELECT * FROM speler WHERE tennisvlaanderenid = ?";
+
+      PreparedStatement preparedCheck = connection.prepareStatement(sqlCheck);
+      preparedCheck.setInt(1, tennisvlaanderenid);
+      var queryResult = preparedCheck.executeQuery();
+
+      if(queryResult.next()){
+        String sqlDelete = "DELETE FROM speler WHERE tennisvlaanderenid = ?";
+
+        PreparedStatement preparedDelete = connection.prepareStatement(sqlDelete);
+        preparedDelete.setInt(1, tennisvlaanderenid);
+        preparedDelete.executeUpdate();
+        preparedDelete.close();
+      } else {
+        // [DEBUG]: verwijder voor indienen.
+        System.err.println("[DEBUG] Invalid Speler met identification: " + tennisvlaanderenid);
+        throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenid);
+      }
+    } catch (SQLException e) {
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij verwijderen speler" + e.getMessage(), e);
+    }
   }
 
   @Override
   public String getHoogsteRankingVanSpeler(int tennisvlaanderenid) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'getHoogsteRankingVanSpeler'");
+    // throw new UnsupportedOperationException("Unimplemented method 'getHoogsteRankingVanSpeler'");
+    /*
+     *  ! Info over JOIN (en meer) hier gevonden: https://www.w3schools.com/sql/sql_join.asp
+     *  ! Info over ORDER BY (en meer) hier gevonden: https://www.w3schools.com/sql/sql_orderby.asp
+     */
+    try {
+      String result = "Geen tornooi en plaats gevonden";
+
+      String sql = "SELECT tornooi.clubnaam, wedstrijd.finale, wedstrijd.winnaar FROM wedstrijd " +   // clubnaam, finalenr. en winaar ophalen.
+                   "JOIN tornooi ON wedstrijd.tornooi = tornooi.id " +                                // JOIN zodat clubnaam uit tornooi gehaald kan worden.
+                                                                                                      // Het tornooi ID moet overeenkomen met de int "tornooi" in de tabel wedstrijd.
+                                                                                                      // "tornooi" in wedstrijd is foreign key naar een tornaaiID.
+                   "WHERE (wedstrijd.speler1 = ? OR wedstrijd.speler2 = ?) " +                        // Gegeven tennisvlaanderenid moet overeenkomen met speler1 / speler2 van een wedstrijd.
+                   "ORDER BY wedstrijd.finale ASC, wedstrijd.winnaar = ? DESC";                                // Eerst laagste finalenr. dan sorteren welke boolean het hoogste is.
+                                                                                                      // Boolean is true (1) als wedstrijd.winnaar = tennisvlaanderenid.
+
+      PreparedStatement prepared = connection.prepareStatement(sql);
+      prepared.setInt(1, tennisvlaanderenid);
+      prepared.setInt(2, tennisvlaanderenid);
+      prepared.setInt(3, tennisvlaanderenid);
+      var queryResult = prepared.executeQuery();
+
+      if (queryResult.next()) {
+        String clubnaam = queryResult.getString("clubnaam");
+        int finale = queryResult.getInt("finale");
+        int winnaar = queryResult.getInt("winnaar");
+
+        String plaats;
+        switch (finale) {
+          case 1:
+            if (winnaar == tennisvlaanderenid){
+              plaats = "winst";
+            } else {
+              plaats = "finale";
+            }
+            break;
+          case 2:
+            plaats = "halve finale";
+            break;
+          case 3:
+            plaats = "kwart finale";
+            break;
+          case 4:
+            plaats = "achtste finale";
+            break;
+          default:
+            plaats = "n-finale";
+        }
+        result = "Hoogst geplaatst in het tornooi van " + clubnaam + " met plaats in de " + plaats;
+      }
+      return result;
+
+    } catch (SQLException e) {
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij opzoeken beste ranking speler" + e.getMessage(), e);
+    }
   }
 
   @Override
   public void addSpelerToTornooi(int tornooiId, int tennisvlaanderenId) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'addSpelerToTornooi'");
+    // throw new UnsupportedOperationException("Unimplemented method 'addSpelerToTornooi'");
+    try {
+      String sql = "INSERT INTO speler_speelt_tornooi (speler, tornooi) VALUES (?, ?)";
+
+      PreparedStatement prepared = connection.prepareStatement(sql);
+      prepared.setInt(1, tennisvlaanderenId);
+      prepared.setInt(2, tornooiId);
+      prepared.executeUpdate();
+      prepared.close();
+      connection.commit();
+
+    } catch (SQLException e) {
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij toevoegen speler aan tornooi" + e.getMessage(), e);
+    }
   }
 
   @Override
   public void removeSpelerFromTornooi(int tornooiId, int tennisvlaanderenId) {
-    // TODO: verwijder de "throw new UnsupportedOperationException" en schrijf de code die de gewenste methode op de juiste manier implementeerd zodat de testen slagen.
-    throw new UnsupportedOperationException("Unimplemented method 'removeSpelerFromTornooi'");
+    // throw new UnsupportedOperationException("Unimplemented method 'removeSpelerFromTornooi'");
+    try {
+      String sqlCheck = "SELECT * FROM speler_speelt_tornooi WHERE speler = ? AND tornooi = ?";
+
+      PreparedStatement preparedCheck = connection.prepareStatement(sqlCheck);
+      preparedCheck.setInt(1, tennisvlaanderenId);
+      preparedCheck.setInt(2, tornooiId);
+      var queryResult = preparedCheck.executeQuery();
+
+      if(queryResult.next()){
+        String sqlDelete = "DELETE FROM speler_speelt_tornooi WHERE speler = ? AND tornooi = ?";
+
+        PreparedStatement preparedDelete = connection.prepareStatement(sqlDelete);
+        preparedDelete.setInt(1, tennisvlaanderenId);
+        preparedDelete.setInt(2, tornooiId);
+        preparedDelete.executeUpdate();
+        preparedDelete.close();
+        connection.commit();
+      } else {
+        // [DEBUG]: verwijder voor indienen.
+        System.err.println("[DEBUG] Invalid Speler met identification:");
+        throw new RuntimeException("Invalid Speler met identification");
+      }
+    } catch (SQLException e) {
+      // [DEBUG]: verwijder voor indienen.
+      System.err.println("[DEBUG] " + e.getMessage());
+      throw new RuntimeException("Databasefout bij verwijderen speler van tornooi" + e.getMessage(), e);
+    }
   }
 }

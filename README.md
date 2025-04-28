@@ -91,3 +91,5 @@ public void removeSpelerFromTornooi(int tornooiId, int tennisvlaanderenId);
 --> Opmerkingen:
   ! [Debug]-code is toegevoegd zodat er meldingen in de debug console worden gegeven.
     Dit mag worden verwijderd in de finale versie.
+
+  ! Fout in SpelerRepositoryTest.java!?

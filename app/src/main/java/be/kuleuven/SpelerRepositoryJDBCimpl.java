@@ -29,8 +29,6 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       prepared.close();
 
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij toevoegen speler" + e.getMessage(), e);
     }
   }
@@ -46,29 +44,15 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       var queryResult = prepared.executeQuery();
 
       if (queryResult.next()) {
-        // [DEBUG]: verwijder voor indienen.
-        String printThis = String.format(
-          "fromDB: %d '%s' %d",
-          queryResult.getInt("tennisvlaanderenid"),
-          queryResult.getString("naam"),
-          queryResult.getInt("punten")
-        );
-        System.out.println(printThis);
-        // [QUESTION]: Waar moet close statement?
-        //prepared.close();
         return new Speler(
           queryResult.getInt("tennisvlaanderenid"),
           queryResult.getString("naam"),
           queryResult.getInt("punten")
         );
       } else {
-        // [DEBUG]: verwijder voor indienen.
-        System.err.println("[DEBUG] Invalid Speler met identification: " + tennisvlaanderenId);
-        throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenId);
+        throw new InvalidSpelerException("Invalid Speler met identification: " + tennisvlaanderenId);
       }
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij ophalen speler" + e.getMessage(), e);
     }
   }
@@ -89,26 +73,14 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       String naam = queryResult.getString("naam");
       int punten = queryResult.getInt("punten");
 
-      // [DEBUG]: verwijder voor indienen.
-      String printThis = String.format(
-        "fromDB: %d '%s' %d",
-        tennisvlaanderenId,
-        naam,
-        punten
-      );
-      System.out.println(printThis);
-
       result.add(new Speler(tennisvlaanderenId, naam, punten));
     }
 
-    // [QUESTION]: Waar moet close statement?
     prepared.close();
 
     return result;
 
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij ophalen alle spelers" + e.getMessage(), e);
     }
   }
@@ -117,31 +89,18 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
   public void updateSpelerInDb(Speler speler) {
     //throw new UnsupportedOperationException("Unimplemented method 'updateSpelerInDb'");
     try {
-      String sqlCheck = "SELECT * FROM speler WHERE tennisvlaanderenid = ?";
+      getSpelerByTennisvlaanderenId(speler.getTennisvlaanderenId());  // Handelt InvalidSpelerException.
 
-      PreparedStatement preparedCheck = connection.prepareStatement(sqlCheck);
-      preparedCheck.setInt(1, speler.getTennisvlaanderenId());
-      var queryResult = preparedCheck.executeQuery();
+      String sql = "UPDATE speler SET naam = ?, punten = ? WHERE tennisvlaanderenid = ?";
 
-      if(queryResult.next()){
-        String sqlUpdate = "UPDATE speler SET naam = ?, punten = ? WHERE tennisvlaanderenid = ?";
-
-        PreparedStatement preparedUpdate = connection.prepareStatement(sqlUpdate);
-        preparedUpdate.setString(1, speler.getNaam());
-        preparedUpdate.setInt(2, speler.getPunten());
-        preparedUpdate.setInt(3, speler.getTennisvlaanderenId());
-        preparedUpdate.executeUpdate();
-        preparedUpdate.close();
-
-      } else {
-        // [DEBUG]: verwijder voor indienen.
-        System.err.println("[DEBUG] Invalid Speler met identification: " + speler.getTennisvlaanderenId());
-        throw new RuntimeException("Invalid Speler met identification: " + speler.getTennisvlaanderenId());
-      }
+      PreparedStatement prepared = connection.prepareStatement(sql);
+      prepared.setString(1, speler.getNaam());
+      prepared.setInt(2, speler.getPunten());
+      prepared.setInt(3, speler.getTennisvlaanderenId());
+      prepared.executeUpdate();
+      prepared.close();
 
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij updaten speler" + e.getMessage(), e);
     }
   }
@@ -150,27 +109,16 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
   public void deleteSpelerInDb(int tennisvlaanderenid) {
     // throw new UnsupportedOperationException("Unimplemented method 'deleteSpelerInDb'");
     try {
-      String sqlCheck = "SELECT * FROM speler WHERE tennisvlaanderenid = ?";
+      getSpelerByTennisvlaanderenId(tennisvlaanderenid);  // Handelt InvalidSpelerException.
+      
+      String sql = "DELETE FROM speler WHERE tennisvlaanderenid = ?";
 
-      PreparedStatement preparedCheck = connection.prepareStatement(sqlCheck);
-      preparedCheck.setInt(1, tennisvlaanderenid);
-      var queryResult = preparedCheck.executeQuery();
+      PreparedStatement prepared = connection.prepareStatement(sql);
+      prepared.setInt(1, tennisvlaanderenid);
+      prepared.executeUpdate();
+      prepared.close();
 
-      if(queryResult.next()){
-        String sqlDelete = "DELETE FROM speler WHERE tennisvlaanderenid = ?";
-
-        PreparedStatement preparedDelete = connection.prepareStatement(sqlDelete);
-        preparedDelete.setInt(1, tennisvlaanderenid);
-        preparedDelete.executeUpdate();
-        preparedDelete.close();
-      } else {
-        // [DEBUG]: verwijder voor indienen.
-        System.err.println("[DEBUG] Invalid Speler met identification: " + tennisvlaanderenid);
-        throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenid);
-      }
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij verwijderen speler" + e.getMessage(), e);
     }
   }
@@ -230,8 +178,6 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       return result;
 
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij opzoeken beste ranking speler" + e.getMessage(), e);
     }
   }
@@ -250,8 +196,6 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       connection.commit();
 
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij toevoegen speler aan tornooi" + e.getMessage(), e);
     }
   }
@@ -277,13 +221,9 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
         preparedDelete.close();
         connection.commit();
       } else {
-        // [DEBUG]: verwijder voor indienen.
-        System.err.println("[DEBUG] Invalid Speler met identification:");
         throw new RuntimeException("Invalid Speler met identification");
       }
     } catch (SQLException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij verwijderen speler van tornooi" + e.getMessage(), e);
     }
   }

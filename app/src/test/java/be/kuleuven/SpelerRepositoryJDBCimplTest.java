@@ -37,31 +37,26 @@ public class SpelerRepositoryJDBCimplTest extends SpelerRepositoryTest {
   }
 
   @Test
-  // [QUESTION] Test is volgens VSC goedgekeurd, volgens TEST RESULTS niet.
   public void givenNewSpeler_whenAddSpelerToDb_assertThatSpelerIsInDb() {
     super.givenNewSpeler_whenAddSpelerToDb_assertThatSpelerIsInDb();
   }
 
   @Test
-  // [QUESTION] Test is volgens VSC goedgekeurd, volgens TEST RESULTS niet.
   public void givenNewSpelerThatAlreadyInDb_whenAddSpelerToDb_assertThrowsRuntimeException() {
     super.givenNewSpelerThatAlreadyInDb_whenAddSpelerToDb_assertThrowsRuntimeException();
   }
 
   @Test
-  // [QUESTION] Test is volgens VSC goedgekeurd, volgens TEST RESULTS niet.
   public void given1_whenGetSpelerByTennisvlaanderenId_assertThatSpelerIsNadal() {
     super.given1_whenGetSpelerByTennisvlaanderenId_assertThatSpelerIsNadal();
   }
 
   @Test
-  // [QUESTION] Test is volgens VSC goedgekeurd, volgens TEST RESULTS niet.
   public void givenWrongTennisvlaanderenId_whenGetSpelerByTennisvlaanderenId_assertThatThrowsInvalidSpelerException() {
     super.givenWrongTennisvlaanderenId_whenGetSpelerByTennisvlaanderenId_assertThatThrowsInvalidSpelerException();
   }
 
   @Test
-  // [QUESTION] Test is volgens VSC goedgekeurd, volgens TEST RESULTS niet.
   public void whenGetAllSpelers_assertThat8correctSpelersPresent() {
     super.whenGetAllSpelers_assertThat8correctSpelersPresent();
   }

@@ -2,6 +2,8 @@ package be.kuleuven;
 
 import java.util.List;
 
+import javax.persistence.NoResultException;
+
 import org.jdbi.v3.core.Jdbi;
 
 public class SpelerRepositoryJDBIimpl implements SpelerRepository {
@@ -24,8 +26,6 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
           speler.getTennisvlaanderenId(), speler.getNaam(), speler.getPunten());
       });
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij toevoegen speler" + e.getMessage(), e);
     }
   }
@@ -44,19 +44,14 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
       });
 
       if (speler == null) {
-        // [DEBUG]: verwijder voor indienen.
-        System.err.println("[DEBUG] Invalid Speler met identification: " + tennisvlaanderenId);
         throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenId);
       }
       return speler;
 
+    } catch (IllegalStateException e) {
+      throw new InvalidSpelerException("Invalid Speler met identification: " + tennisvlaanderenId);
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
-      if (e instanceof IllegalStateException) {               // !  Als er geen speler gevonden is gooit .first() een IllegalStateException.
-        throw new RuntimeException("Invalid Speler met identification: " + tennisvlaanderenId);
-      }
-      throw new RuntimeException("Databasefout bij ophalen speler " + e.getMessage(), e);
+      throw new InvalidSpelerException("Invalid Speler met identification: " + tennisvlaanderenId);
     }
   }
 
@@ -73,8 +68,6 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
       });
 
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij ophalen alle spelers" + e.getMessage(), e);
     }
   }
@@ -82,41 +75,27 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
   @Override
   public void updateSpelerInDb(Speler speler) {
     // throw new UnsupportedOperationException("Unimplemented method 'updateSpelerInDb'");
-    try {
-      getSpelerByTennisvlaanderenId(speler.getTennisvlaanderenId());
+    getSpelerByTennisvlaanderenId(speler.getTennisvlaanderenId());
 
-      String sql = "UPDATE speler SET naam = ?, punten = ? WHERE tennisvlaanderenid = ?";
+    String sql = "UPDATE speler SET naam = ?, punten = ? WHERE tennisvlaanderenid = ?";
 
-      jdbi.withHandle(handle -> {
-        return handle.execute(sql, 
-          speler.getNaam(), speler.getPunten(), speler.getTennisvlaanderenId());
-      });
-
-    } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
-      throw new RuntimeException("Databasefout bij updaten speler" + e.getMessage(), e);
-    }
+    jdbi.withHandle(handle -> {
+      return handle.execute(sql, 
+        speler.getNaam(), speler.getPunten(), speler.getTennisvlaanderenId());
+    });
   }
 
   @Override
   public void deleteSpelerInDb(int tennisvlaanderenid) {
     // throw new UnsupportedOperationException("Unimplemented method 'deleteSpelerInDb'");
-    try {
-      getSpelerByTennisvlaanderenId(tennisvlaanderenid);
+    getSpelerByTennisvlaanderenId(tennisvlaanderenid);  // Handelt InvalidSpelerException.
 
-      String sql = "DELETE FROM speler WHERE tennisvlaanderenid = ?";
+    String sql = "DELETE FROM speler WHERE tennisvlaanderenid = ?";
 
-      jdbi.withHandle(handle -> {
-        return handle.execute(sql,
-          tennisvlaanderenid);
-      });
-
-    } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
-      throw new RuntimeException("Databasefout bij updaten speler" + e.getMessage(), e);
-    }
+    jdbi.withHandle(handle -> {
+      return handle.execute(sql,
+         tennisvlaanderenid);
+    });
   }
 
   @Override
@@ -179,8 +158,6 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
       });
 
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij opzoeken beste ranking speler" + e.getMessage(), e);
     }
   }
@@ -197,8 +174,6 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
       });
 
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij opzoeken beste ranking speler" + e.getMessage(), e);
     }
   }
@@ -215,8 +190,6 @@ public class SpelerRepositoryJDBIimpl implements SpelerRepository {
       });
       
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij opzoeken beste ranking speler" + e.getMessage(), e);
     }
   }

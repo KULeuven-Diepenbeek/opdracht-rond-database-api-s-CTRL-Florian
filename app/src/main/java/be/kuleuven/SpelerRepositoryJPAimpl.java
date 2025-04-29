@@ -30,8 +30,6 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
       em.persist(speler);
       em.getTransaction().commit();
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException(" A PRIMARY KEY constraint failed" + e);
     }
   }
@@ -51,12 +49,8 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
       return speler;
 
     } catch (NoResultException e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new InvalidSpelerException("Invalid Speler met identification: " + tennisvlaanderenId);
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new InvalidSpelerException("Invalid Speler met identification: " + tennisvlaanderenId);
     }
   }
@@ -75,8 +69,6 @@ public class SpelerRepositoryJPAimpl implements SpelerRepository {
 
       return result;
     } catch (Exception e) {
-      // [DEBUG]: verwijder voor indienen.
-      System.err.println("[DEBUG] " + e.getMessage());
       throw new RuntimeException("Databasefout bij ophalen alle spelers" + e.getMessage(), e);
     }
     

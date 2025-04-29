@@ -190,7 +190,7 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
                                                                                                       // Het tornooi ID moet overeenkomen met de int "tornooi" in de tabel wedstrijd.
                                                                                                       // "tornooi" in wedstrijd is foreign key naar een tornaaiID.
                    "WHERE (wedstrijd.speler1 = ? OR wedstrijd.speler2 = ?) " +                        // Gegeven tennisvlaanderenid moet overeenkomen met speler1 / speler2 van een wedstrijd.
-                   "ORDER BY wedstrijd.finale ASC, wedstrijd.winnaar = ? DESC";                                // Eerst laagste finalenr. dan sorteren welke boolean het hoogste is.
+                   "ORDER BY wedstrijd.finale ASC, wedstrijd.winnaar = ? DESC";                       // Eerst laagste finalenr. dan sorteren welke boolean het hoogste is.
                                                                                                       // Boolean is true (1) als wedstrijd.winnaar = tennisvlaanderenid.
 
       PreparedStatement prepared = connection.prepareStatement(sql);

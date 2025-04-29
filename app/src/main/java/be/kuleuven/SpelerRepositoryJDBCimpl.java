@@ -22,7 +22,7 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       String sql = "INSERT INTO speler (tennisvlaanderenid, naam, punten) VALUES (?, ?, ?)";
 
       PreparedStatement prepared = connection.prepareStatement(sql);
-      prepared.setInt(1, speler.getTennisvlaanderenid());
+      prepared.setInt(1, speler.getTennisvlaanderenId());
       prepared.setString(2, speler.getNaam());
       prepared.setInt(3, speler.getPunten());
       prepared.executeUpdate();
@@ -120,7 +120,7 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
       String sqlCheck = "SELECT * FROM speler WHERE tennisvlaanderenid = ?";
 
       PreparedStatement preparedCheck = connection.prepareStatement(sqlCheck);
-      preparedCheck.setInt(1, speler.getTennisvlaanderenid());
+      preparedCheck.setInt(1, speler.getTennisvlaanderenId());
       var queryResult = preparedCheck.executeQuery();
 
       if(queryResult.next()){
@@ -129,14 +129,14 @@ public class SpelerRepositoryJDBCimpl implements SpelerRepository {
         PreparedStatement preparedUpdate = connection.prepareStatement(sqlUpdate);
         preparedUpdate.setString(1, speler.getNaam());
         preparedUpdate.setInt(2, speler.getPunten());
-        preparedUpdate.setInt(3, speler.getTennisvlaanderenid());
+        preparedUpdate.setInt(3, speler.getTennisvlaanderenId());
         preparedUpdate.executeUpdate();
         preparedUpdate.close();
 
       } else {
         // [DEBUG]: verwijder voor indienen.
-        System.err.println("[DEBUG] Invalid Speler met identification: " + speler.getTennisvlaanderenid());
-        throw new RuntimeException("Invalid Speler met identification: " + speler.getTennisvlaanderenid());
+        System.err.println("[DEBUG] Invalid Speler met identification: " + speler.getTennisvlaanderenId());
+        throw new RuntimeException("Invalid Speler met identification: " + speler.getTennisvlaanderenId());
       }
 
     } catch (SQLException e) {

@@ -1,17 +1,15 @@
 package be.kuleuven;
 
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
 import static org.assertj.core.api.Assertions.*;
 
-import java.sql.SQLException;
-import java.sql.Statement;
-
 public abstract class SpelerRepositoryTest {
-  // protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite:file:test.db";
-  protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite::memory:";
+  protected final String CONNECTIONSTRING_TO_TEST_DB = "jdbc:sqlite:testdatabase.db";
   protected final String USER_OF_TEST_DB = "";
   protected final String PWD_OF_TEST_DB = "";
 
@@ -21,14 +19,6 @@ public abstract class SpelerRepositoryTest {
   public void givenNewSpeler_whenAddSpelerToDb_assertThatSpelerIsInDb() {
     // Arrange
     Speler newSpeler = new Speler(123, "TestNaam", 11);
-    // TODO: [DEBUG] verwijder voor indienen.
-    String printThis = String.format(
-      "fromTest: %d '%s' %d",
-      newSpeler.getTennisvlaanderenid(),
-      newSpeler.getNaam(),
-      newSpeler.getPunten()
-    );
-    System.out.println(printThis);
 
     // Act
     spelerRepository.addSpelerToDb(newSpeler);
@@ -96,8 +86,16 @@ public abstract class SpelerRepositoryTest {
     // Act
     List<Speler> spelersToCheck = spelerRepository.getAllSpelers();
     // Assert
-    assertThat(spelersToCheck).usingRecursiveFieldByFieldElementComparator()
-        .containsExactlyInAnyOrderElementsOf(spelersSolution);
+    // assertThat(spelersToCheck).usingRecursiveFieldByFieldElementComparator()
+    //     .containsExactlyInAnyOrderElementsOf(spelersSolution);
+    assertThat(spelersToCheck.get(0)).isEqualTo(spelersSolution.get(0));
+    assertThat(spelersToCheck.get(1)).isEqualTo(spelersSolution.get(1));
+    assertThat(spelersToCheck.get(2)).isEqualTo(spelersSolution.get(2));
+    assertThat(spelersToCheck.get(3)).isEqualTo(spelersSolution.get(3));
+    assertThat(spelersToCheck.get(4)).isEqualTo(spelersSolution.get(4));
+    assertThat(spelersToCheck.get(5)).isEqualTo(spelersSolution.get(5));
+    assertThat(spelersToCheck.get(6)).isEqualTo(spelersSolution.get(6));
+    assertThat(spelersToCheck.get(7)).isEqualTo(spelersSolution.get(7));
   }
 
   @Test

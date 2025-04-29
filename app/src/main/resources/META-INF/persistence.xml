@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence 
+                                 http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+    <persistence-unit name="be.kuleuven.spelerhibernateTest">
+        <description>Speler JPA Opdracht</description>
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <class>be.kuleuven.Speler</class>
+        <class>be.kuleuven.Tornooi</class>
+        <class>be.kuleuven.Wedstrijd</class>
+
+        <properties>
+            <!-- SQLite driver -->
+            <!-- <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/> -->
+            <property name="javax.persistence.jdbc.driver" value="org.sqlite.JDBC"/>
+            
+            <property name="javax.persistence.jdbc.url" value="jdbc:sqlite:testdatabase.db"/>
+            <property name="javax.persistence.jdbc.user" value=""/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+
+            <!-- Hibernate specifieke properties -->
+            <property name="hibernate.dialect" value="org.sqlite.hibernate.dialect.SQLiteDialect"/>
+            <property name="hibernate.connection.autocommit" value="true"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.flushMode" value="ALWAYS"/>
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+        </properties>
+    </persistence-unit>
+</persistence>

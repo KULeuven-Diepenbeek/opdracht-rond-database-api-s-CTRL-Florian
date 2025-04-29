@@ -6,13 +6,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-// TODO add missing decorators for JPA
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+@Entity
+@Table(name = "speler")
 public class Speler {
 
+  @Id
+  @Column(name = "tennisvlaanderenid")
   private int tennisvlaanderenId;
 
+  @Column(name = "naam", nullable = false)
   private String naam;
 
+  @Column(name = "punten", nullable = false)
   private int punten;
 
   // For relations
